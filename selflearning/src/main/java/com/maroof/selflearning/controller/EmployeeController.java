@@ -1,8 +1,10 @@
 package com.maroof.selflearning.controller;
 
+import com.maroof.selflearning.dto.ApiResponse;
 import com.maroof.selflearning.dto.EmployeeRequest;
 import com.maroof.selflearning.dto.EmployeeResponse;
 import com.maroof.selflearning.service.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +21,7 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public EmployeeResponse create(@RequestBody EmployeeRequest request) {
-        return service.createEmployee(request);
+    public ApiResponse<EmployeeResponse> create(@Valid @RequestBody EmployeeRequest request) {
+        return new ApiResponse<EmployeeResponse>(service.createEmployee(request), "Employee created successfully");
     }
 }
