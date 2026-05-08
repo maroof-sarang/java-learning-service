@@ -23,18 +23,25 @@ public class EmployeeService {
 
         validateRequest(request);
 
-        EmployeeResponse employeeResponse = EmployeeResponse.builder()
-                .id(generateId())
-                .name(request.getName())
-                .email(request.getEmail())
-                .build();
+        EmployeeResponse response =
+                buildEmployeeResponse(request);
 
         logger.info("Employee created successfully with email: {}",
                 request.getEmail());
 
         sendNotification();
 
-        return employeeResponse;
+        return response;
+    }
+
+    private EmployeeResponse buildEmployeeResponse(
+            EmployeeRequest request) {
+
+        return EmployeeResponse.builder()
+                .id(generateId())
+                .name(request.getName())
+                .email(request.getEmail())
+                .build();
     }
 
     private void validateRequest(EmployeeRequest request) {
@@ -44,6 +51,10 @@ public class EmployeeService {
 
         if (request.getName() == null || request.getName().isBlank()) {
             throw new CustomException("Name is required");
+        }
+
+        if ("admin".equalsIgnoreCase(request.getName())) {
+            throw new CustomException("Reserved employee name");
         }
     }
 
