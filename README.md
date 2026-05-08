@@ -21,3 +21,11 @@ Implemented:
   - Separation of framework validation and business validation
   - Strategy design pattern (Payment example)
   - Improved layering and defensive validation practices
+
+### Day 4
+- Focus: Unit testing, refactoring, and maintainability
+Implemented:
+  - Unit tests for employee service flows
+  - Validation testing for business exceptions
+  - Refactored response creation into dedicated methods
+  - Observer design pattern (Notification subscription example)
