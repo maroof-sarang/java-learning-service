@@ -5,13 +5,26 @@ import com.maroof.selflearning.dto.EmployeeResponse;
 import com.maroof.selflearning.exception.CustomException;
 import com.maroof.selflearning.lld.Notification;
 import com.maroof.selflearning.lld.NotificationFactory;
+import com.maroof.selflearning.lld.strategy.CreditCardPayment;
+import com.maroof.selflearning.lld.strategy.PaymentStrategy;
+import com.maroof.selflearning.lld.strategy.UpiPayment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class EmployeeService {
+
+    @Value("${app.notification.type}")
+    private String notificationType;
+
+    @Value("${app.payment.type}")
+    private String paymentType;
+
+    @Value("${app.feature.logging.enabled}")
+    private boolean loggingEnabled;
 
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
@@ -19,8 +32,9 @@ public class EmployeeService {
 
     public EmployeeResponse createEmployee(EmployeeRequest request) {
 
-        logger.info("Creating employee with email: {}", request.getEmail());
-
+        if (loggingEnabled) {
+            logger.info("Received request to create employee");
+        }
         validateRequest(request);
 
         EmployeeResponse response =
@@ -30,6 +44,8 @@ public class EmployeeService {
                 request.getEmail());
 
         sendNotification();
+
+        processPayment();
 
         return response;
     }
@@ -63,7 +79,21 @@ public class EmployeeService {
     }
 
     private void sendNotification() {
-        Notification notification = NotificationFactory.create("email");
+        Notification notification =
+                NotificationFactory.create(notificationType);
         notification.send();
+    }
+
+    private void processPayment() {
+
+        PaymentStrategy paymentStrategy;
+
+        if ("upi".equalsIgnoreCase(paymentType)) {
+            paymentStrategy = new UpiPayment();
+        } else {
+            paymentStrategy = new CreditCardPayment();
+        }
+
+        paymentStrategy.pay();
     }
 }
