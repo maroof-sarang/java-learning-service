@@ -29,3 +29,10 @@ Implemented:
   - Validation testing for business exceptions
   - Refactored response creation into dedicated methods
   - Observer design pattern (Notification subscription example)
+
+- ### Day 5
+- Implemented:
+  - Externalized application configurations
+  - Reduced hardcoded values using property-based behavior
+  - Improved service configurability
+  - Implemented Builder design pattern
