@@ -5,6 +5,7 @@ import com.maroof.selflearning.dto.EmployeeResponse;
 import com.maroof.selflearning.exception.CustomException;
 import com.maroof.selflearning.lld.Notification;
 import com.maroof.selflearning.lld.NotificationFactory;
+import com.maroof.selflearning.lld.adapter.NotificationAdapter;
 import com.maroof.selflearning.lld.strategy.CreditCardPayment;
 import com.maroof.selflearning.lld.strategy.PaymentStrategy;
 import com.maroof.selflearning.lld.strategy.UpiPayment;
@@ -30,6 +31,11 @@ public class EmployeeService {
 
     private final AtomicLong idGenerator = new AtomicLong();
 
+    /**
+     * Creates a new employee response based on request input.
+     * Performs validation, notification handling,
+     * and payment processing orchestration.
+     */
     public EmployeeResponse createEmployee(EmployeeRequest request) {
 
         if (loggingEnabled) {
@@ -47,9 +53,14 @@ public class EmployeeService {
 
         processPayment();
 
+        sendLegacyNotification();
+
         return response;
     }
 
+    /**
+     * Builds employee response object from request data.
+     */
     private EmployeeResponse buildEmployeeResponse(
             EmployeeRequest request) {
 
@@ -60,6 +71,10 @@ public class EmployeeService {
                 .build();
     }
 
+    /**
+     * Performs defensive and business validations
+     * for incoming employee requests.
+     */
     private void validateRequest(EmployeeRequest request) {
         if (request == null) {
             throw new CustomException("Request cannot be null");
@@ -84,6 +99,10 @@ public class EmployeeService {
         notification.send();
     }
 
+    /**
+     * Processes employee payment flow using
+     * configurable strategy selection.
+     */
     private void processPayment() {
 
         PaymentStrategy paymentStrategy;
@@ -95,5 +114,17 @@ public class EmployeeService {
         }
 
         paymentStrategy.pay();
+    }
+
+    /**
+     * Sends notification using adapter integration
+     * for legacy notification service compatibility.
+     */
+    private void sendLegacyNotification() {
+
+        NotificationAdapter adapter =
+                new NotificationAdapter();
+
+        adapter.send();
     }
 }
