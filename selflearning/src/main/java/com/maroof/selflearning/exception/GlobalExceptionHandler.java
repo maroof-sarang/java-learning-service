@@ -1,6 +1,8 @@
 package com.maroof.selflearning.exception;
 
+import com.maroof.selflearning.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -24,11 +26,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleCustomException(CustomException ex) {
+    public ResponseEntity<ApiResponse<String>>handleCustomException(CustomException ex) {
 
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
+        ApiResponse<String> response =
+                new ApiResponse<>(
+                        false,
+                        ex.getMessage(),
+                        null
+                );
 
-        return error;
+        return ResponseEntity.badRequest()
+                .body(response);
     }
 }

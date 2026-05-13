@@ -22,6 +22,6 @@ public class EmployeeController {
 
     @PostMapping
     public ApiResponse<EmployeeResponse> create(@Valid @RequestBody EmployeeRequest request) {
-        return new ApiResponse<EmployeeResponse>(service.createEmployee(request), "Employee created successfully");
+        return new ApiResponse<EmployeeResponse>(true,"Employee created successfully",service.createEmployee(request));
     }
 }
