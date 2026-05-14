@@ -55,3 +55,12 @@
   - Standardized controller response handling for better API consistency
   - Implemented Template Method design pattern (Data processing flow example)
   - Improved maintainability and client integration readability through consistent API contracts
+
+### Day 8
+- Focus: Dependency injection and service decoupling
+- Implemented:
+  - Reduced tight coupling through dependency injection
+  - Introduced payment strategy resolver for cleaner orchestration
+  - Improved service maintainability and testability
+  - Refactored service dependency management using Spring components
+  - Implemented Facade design pattern (Order processing orchestration example)
