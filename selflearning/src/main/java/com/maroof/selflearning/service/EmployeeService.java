@@ -1,5 +1,6 @@
 package com.maroof.selflearning.service;
 
+import com.maroof.selflearning.config.PaymentStrategyResolver;
 import com.maroof.selflearning.dto.EmployeeRequest;
 import com.maroof.selflearning.dto.EmployeeResponse;
 import com.maroof.selflearning.exception.CustomException;
@@ -30,6 +31,15 @@ public class EmployeeService {
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
     private final AtomicLong idGenerator = new AtomicLong();
+
+    private final NotificationAdapter notificationAdapter;
+
+    private final PaymentStrategyResolver paymentStrategyResolver;
+
+    public EmployeeService(NotificationAdapter notificationAdapter, PaymentStrategyResolver paymentStrategyResolver) {
+        this.notificationAdapter = notificationAdapter;
+        this.paymentStrategyResolver = paymentStrategyResolver;
+    }
 
     /**
      * Creates a new employee response based on request input.
@@ -105,13 +115,8 @@ public class EmployeeService {
      */
     private void processPayment() {
 
-        PaymentStrategy paymentStrategy;
-
-        if ("upi".equalsIgnoreCase(paymentType)) {
-            paymentStrategy = new UpiPayment();
-        } else {
-            paymentStrategy = new CreditCardPayment();
-        }
+        PaymentStrategy paymentStrategy =
+                paymentStrategyResolver.resolve(paymentType);
 
         paymentStrategy.pay();
     }
@@ -122,9 +127,6 @@ public class EmployeeService {
      */
     private void sendLegacyNotification() {
 
-        NotificationAdapter adapter =
-                new NotificationAdapter();
-
-        adapter.send();
+        notificationAdapter.send();
     }
 }
