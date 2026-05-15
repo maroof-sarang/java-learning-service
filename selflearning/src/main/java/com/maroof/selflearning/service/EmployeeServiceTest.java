@@ -1,15 +1,34 @@
 package com.maroof.selflearning.service;
 
+import com.maroof.selflearning.cache.EmployeeCacheService;
+import com.maroof.selflearning.config.PaymentStrategyResolver;
 import com.maroof.selflearning.dto.EmployeeRequest;
 import com.maroof.selflearning.dto.EmployeeResponse;
+import com.maroof.selflearning.lld.adapter.NotificationAdapter;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EmployeeServiceTest {
 
+    private final NotificationAdapter notificationAdapter =
+            new NotificationAdapter();
+
+    private final PaymentStrategyResolver paymentStrategyResolver =
+            new PaymentStrategyResolver();
+
+    private final EmployeeCacheService employeeCacheService =
+            new EmployeeCacheService();
+
     private final EmployeeService employeeService =
-            new EmployeeService();
+            new EmployeeService(
+                    notificationAdapter,
+                    paymentStrategyResolver,
+                    employeeCacheService,
+                    "email",
+                    "upi",
+                    true
+            );
 
     @Test
     void shouldCreateEmployeeSuccessfully() {

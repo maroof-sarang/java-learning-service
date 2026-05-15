@@ -1,5 +1,6 @@
 package com.maroof.selflearning.service;
 
+import com.maroof.selflearning.cache.EmployeeCacheService;
 import com.maroof.selflearning.config.PaymentStrategyResolver;
 import com.maroof.selflearning.dto.EmployeeRequest;
 import com.maroof.selflearning.dto.EmployeeResponse;
@@ -7,9 +8,7 @@ import com.maroof.selflearning.exception.CustomException;
 import com.maroof.selflearning.lld.Notification;
 import com.maroof.selflearning.lld.NotificationFactory;
 import com.maroof.selflearning.lld.adapter.NotificationAdapter;
-import com.maroof.selflearning.lld.strategy.CreditCardPayment;
 import com.maroof.selflearning.lld.strategy.PaymentStrategy;
-import com.maroof.selflearning.lld.strategy.UpiPayment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,14 +18,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 public class EmployeeService {
 
-    @Value("${app.notification.type}")
-    private String notificationType;
-
-    @Value("${app.payment.type}")
-    private String paymentType;
-
-    @Value("${app.feature.logging.enabled}")
-    private boolean loggingEnabled;
+    private final String notificationType;
+    private final String paymentType;
+    private final boolean loggingEnabled;
 
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
@@ -36,9 +30,21 @@ public class EmployeeService {
 
     private final PaymentStrategyResolver paymentStrategyResolver;
 
-    public EmployeeService(NotificationAdapter notificationAdapter, PaymentStrategyResolver paymentStrategyResolver) {
+    private final EmployeeCacheService employeeCacheService;
+
+    public EmployeeService(NotificationAdapter notificationAdapter,
+                           PaymentStrategyResolver paymentStrategyResolver,
+                           EmployeeCacheService employeeCacheService,
+                           @Value("${app.notification.type}") String notificationType,
+                           @Value("${app.payment.type}") String paymentType,
+                           @Value("${app.feature.logging.enabled}") boolean loggingEnabled) {
         this.notificationAdapter = notificationAdapter;
         this.paymentStrategyResolver = paymentStrategyResolver;
+        this.employeeCacheService = employeeCacheService;
+
+        this.notificationType = notificationType;
+        this.paymentType = paymentType;
+        this.loggingEnabled = loggingEnabled;
     }
 
     /**
@@ -53,6 +59,16 @@ public class EmployeeService {
         }
         validateRequest(request);
 
+        EmployeeResponse cachedResponse =
+                employeeCacheService.get(request.getEmail());
+
+        if (cachedResponse != null) {
+
+            logger.info("Returning employee from cache");
+
+            return cachedResponse;
+        }
+
         EmployeeResponse response =
                 buildEmployeeResponse(request);
 
@@ -64,6 +80,11 @@ public class EmployeeService {
         processPayment();
 
         sendLegacyNotification();
+
+        employeeCacheService.put(
+                request.getEmail(),
+                response
+        );
 
         return response;
     }
