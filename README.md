@@ -64,3 +64,12 @@
   - Improved service maintainability and testability
   - Refactored service dependency management using Spring components
   - Implemented Facade design pattern (Order processing orchestration example)
+
+### Day 9
+- Focus: Caching and performance-oriented improvements
+- Implemented:
+  - Added lightweight in-memory employee caching
+  - Reduced repeated processing through cache-based response retrieval
+  - Improved service abstraction and optimization handling
+  - Introduced cache service layer for centralized cache management
+  - Implemented Proxy design pattern (Access-controlled data fetch example)
