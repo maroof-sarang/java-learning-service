@@ -9,6 +9,7 @@ import com.maroof.selflearning.lld.Notification;
 import com.maroof.selflearning.lld.NotificationFactory;
 import com.maroof.selflearning.lld.adapter.NotificationAdapter;
 import com.maroof.selflearning.lld.strategy.PaymentStrategy;
+import com.maroof.selflearning.util.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,8 +55,12 @@ public class EmployeeService {
      */
     public EmployeeResponse createEmployee(EmployeeRequest request) {
 
+        String requestId =
+                RequestContext.generateRequestId();
+
         if (loggingEnabled) {
-            logger.info("Received request to create employee");
+            logger.info("Request Id: {} - Received request to create employee",
+                    requestId);
         }
         validateRequest(request);
 
@@ -63,8 +68,12 @@ public class EmployeeService {
                 employeeCacheService.get(request.getEmail());
 
         if (cachedResponse != null) {
-
-            logger.info("Returning employee from cache");
+            if (loggingEnabled) {
+                logger.info(
+                        "Request Id: {} - Returning employee from cache",
+                        requestId
+                );
+            }
 
             return cachedResponse;
         }
@@ -72,9 +81,13 @@ public class EmployeeService {
         EmployeeResponse response =
                 buildEmployeeResponse(request);
 
-        logger.info("Employee created successfully with email: {}",
-                request.getEmail());
-
+        if (loggingEnabled) {
+            logger.info(
+                    "Request Id: {} - Employee created successfully with email: {}",
+                    requestId,
+                    request.getEmail()
+            );
+        }
         sendNotification();
 
         processPayment();
