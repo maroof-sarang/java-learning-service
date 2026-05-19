@@ -82,3 +82,12 @@
   - Enhanced debugging visibility for service execution flows
   - Improved cache interaction logging readability
   - Implemented Chain of Responsibility design pattern (Request processing flow example)
+
+### Day 11
+- Focus: Resilience and retry-oriented execution handling
+- Implemented:
+  - Added reusable retry execution utility
+  - Improved failure handling through lightweight retry orchestration
+  - Enhanced resilience awareness for external/legacy interactions
+  - Improved operational robustness through centralized retry handling
+  - Implemented State design pattern (Order state transition example)
