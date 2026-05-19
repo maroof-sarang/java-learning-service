@@ -9,6 +9,7 @@ import com.maroof.selflearning.lld.Notification;
 import com.maroof.selflearning.lld.NotificationFactory;
 import com.maroof.selflearning.lld.adapter.NotificationAdapter;
 import com.maroof.selflearning.lld.strategy.PaymentStrategy;
+import com.maroof.selflearning.resilience.RetryExecutor;
 import com.maroof.selflearning.util.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +34,14 @@ public class EmployeeService {
 
     private final EmployeeCacheService employeeCacheService;
 
+    private final RetryExecutor retryExecutor;
+
     public EmployeeService(NotificationAdapter notificationAdapter,
                            PaymentStrategyResolver paymentStrategyResolver,
                            EmployeeCacheService employeeCacheService,
                            @Value("${app.notification.type}") String notificationType,
                            @Value("${app.payment.type}") String paymentType,
-                           @Value("${app.feature.logging.enabled}") boolean loggingEnabled) {
+                           @Value("${app.feature.logging.enabled}") boolean loggingEnabled, RetryExecutor retryExecutor) {
         this.notificationAdapter = notificationAdapter;
         this.paymentStrategyResolver = paymentStrategyResolver;
         this.employeeCacheService = employeeCacheService;
@@ -46,6 +49,7 @@ public class EmployeeService {
         this.notificationType = notificationType;
         this.paymentType = paymentType;
         this.loggingEnabled = loggingEnabled;
+        this.retryExecutor = retryExecutor;
     }
 
     /**
@@ -140,7 +144,7 @@ public class EmployeeService {
     private void sendNotification() {
         Notification notification =
                 NotificationFactory.create(notificationType);
-        notification.send();
+        retryExecutor.execute(notificationAdapter::send);
     }
 
     /**
